@@ -2,31 +2,28 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Target, MinusCircle, PlusCircle } from "lucide-react"; // アイコン
 
 const ScoreInput = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { gameId } = location.state; // Setting から渡された gameId
+    const { gameId } = location.state;
     const [players, setPlayers] = useState([]);
     const [scores, setScores] = useState({});
     const [roundNumber, setRoundNumber] = useState(1);
-    const [totalRounds, setTotalRounds] = useState(1); // 総ラウンド数
+    const [totalRounds, setTotalRounds] = useState(1);
 
-    // Firestore からゲーム設定を取得
     useEffect(() => {
         const fetchGameSettings = async () => {
             if (!gameId) return;
-
             try {
                 const gameRef = doc(db, "games", gameId);
                 const gameSnap = await getDoc(gameRef);
-
                 if (gameSnap.exists()) {
                     const { gameSettings } = gameSnap.data();
                     setPlayers(gameSettings.playerNames || []);
                     setTotalRounds(gameSettings.roundCount || 1);
 
-                    // 初期スコアは 0
                     const initScores = {};
                     (gameSettings.playerNames || []).forEach((p) => {
                         initScores[p] = 0;
@@ -41,7 +38,6 @@ const ScoreInput = () => {
         fetchGameSettings();
     }, [gameId]);
 
-    // スコア増減
     const handleScoreChange = (player, delta) => {
         setScores((prev) => ({
             ...prev,
@@ -49,7 +45,6 @@ const ScoreInput = () => {
         }));
     };
 
-    // Firestore に保存
     const handleSave = async () => {
         try {
             const roundRef = doc(db, "games", gameId, "rounds", String(roundNumber));
@@ -59,10 +54,8 @@ const ScoreInput = () => {
             });
 
             if (roundNumber >= totalRounds) {
-                // 最終ラウンドなら結果画面に遷移
                 navigate("/result", { state: { gameId } });
             } else {
-                // 次のラウンドに進む
                 setRoundNumber((prev) => prev + 1);
                 const resetScores = {};
                 players.forEach((p) => (resetScores[p] = 0));
@@ -75,34 +68,40 @@ const ScoreInput = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="font-bold text-xl text-center">
-                ラウンド <span className="text-3xl text-blue-600">{roundNumber}</span>
+        <div className="max-w-md mx-auto p-6 space-y-6 rounded-xl">
+            {/* ラウンド見出し */}
+            <h2 className="flex items-center justify-center font-bold text-2xl text-gray-800">
+                ラウンド <span className="ml-2 text-4xl text-blue-600">{roundNumber}</span>
             </h2>
 
             {players.length === 0 ? (
-                <p className="text-gray-500">プレイヤーが設定されていません。</p>
+                <p className="text-gray-500 text-center">プレイヤーが設定されていません。</p>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                     {players.map((player, index) => (
                         <div
                             key={index}
-                            className="flex items-center justify-between bg-white shadow rounded-lg p-3"
+                            className="flex items-center justify-between bg-white shadow-sm rounded-lg p-4 hover:shadow-md transition"
                         >
-                            <div className="bg-blue-100 flex-1 text-center">{player}</div>
-                            <div className="flex items-center gap-2 flex-1">
+                            {/* プレイヤー名 */}
+                            <div className="text-xl flex-1 text-center font-medium text-gray-800">
+                                {player}
+                            </div>
+
+                            {/* スコア操作 */}
+                            <div className="flex items-center gap-3 flex-1 justify-center">
                                 <button
                                     onClick={() => handleScoreChange(player, -10)}
-                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                    className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                                 >
                                     -10
                                 </button>
-                                <span className="w-12 text-center text-lg font-bold">
+                                <span className="w-16 text-center text-lg font-bold text-gray-700">
                                     {scores[player] > 0 ? `+${scores[player]}` : scores[player]}
                                 </span>
                                 <button
                                     onClick={() => handleScoreChange(player, 10)}
-                                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                    className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                                 >
                                     +10
                                 </button>
@@ -112,9 +111,10 @@ const ScoreInput = () => {
                 </div>
             )}
 
+            {/* 次へ/結果へ */}
             <button
                 onClick={handleSave}
-                className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
+                className="flex items-center justify-center gap-2 bg-blue-500 text-white text-lg font-medium px-6 py-3 rounded-xl w-full hover:bg-blue-600 shadow-md transition"
             >
                 {roundNumber >= totalRounds ? "結果へ" : "次のラウンドへ"}
             </button>

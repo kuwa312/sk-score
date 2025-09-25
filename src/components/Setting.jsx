@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { db } from "../firebase";
 import { collection, doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { Users, Layers, Play } from "lucide-react"; // アイコン
 
 const Setting = () => {
     const navigate = useNavigate();
@@ -26,10 +27,7 @@ const Setting = () => {
 
     const handleSave = async () => {
         try {
-            // games コレクション内に新しいドキュメントを自動生成
             const gameRef = doc(collection(db, "games"));
-
-            // ゲーム設定をドキュメントとして保存
             await setDoc(gameRef, {
                 gameSettings: {
                     playerCount,
@@ -38,8 +36,6 @@ const Setting = () => {
                 },
                 createdAt: new Date(),
             });
-
-            // alert("保存しました！");
             navigate("/scoreInput", { state: { gameId: gameRef.id } });
         } catch (error) {
             console.error("保存エラー:", error);
@@ -48,15 +44,22 @@ const Setting = () => {
     };
 
     return (
-        <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-2xl font-bold text-center">人数とラウンド数を決めてね</h2>
+        <div className="max-w-md mx-auto p-6 space-y-6 rounded-xl ">
+            {/* 見出し */}
+            <h2 className="flex items-center justify-center text-2xl font-bold text-gray-800">
+                <Users className="w-6 h-6 mr-2 text-blue-500" />
+                人数とラウンド数を決めてね
+            </h2>
 
+            {/* 人数 */}
             <div>
-                <label className="block mb-1">人数を選択 (1〜10)</label>
+                <label className="block mb-2 font-medium text-gray-700">
+                    人数を選択 (1〜10)
+                </label>
                 <select
                     value={playerCount}
                     onChange={handlePlayerCountChange}
-                    className="border p-2 rounded w-full bg-white"
+                    className="border p-2 rounded-lg w-full bg-white shadow-sm hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 >
                     {[...Array(10)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
@@ -66,6 +69,7 @@ const Setting = () => {
                 </select>
             </div>
 
+            {/* プレイヤー名入力 */}
             <div className="space-y-2">
                 {playerNames.map((name, index) => (
                     <input
@@ -74,17 +78,21 @@ const Setting = () => {
                         placeholder={`プレイヤー${index + 1} の名前`}
                         value={name}
                         onChange={(e) => handleNameChange(index, e.target.value)}
-                        className="border p-2 rounded w-full"
+                        className="border p-2 rounded-lg w-full shadow-sm hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
                     />
                 ))}
             </div>
 
+            {/* ラウンド数 */}
             <div>
-                <label className="block mb-1">ラウンド数</label>
+                <label className="block mb-2 font-medium text-gray-700 flex items-center">
+                    <Layers className="w-5 h-5 mr-1 text-blue-500" />
+                    ラウンド数
+                </label>
                 <select
                     value={roundCount}
                     onChange={(e) => setRoundCount(Number(e.target.value))}
-                    className="border p-2 rounded w-full bg-white"
+                    className="border p-2 rounded-lg w-full bg-white shadow-sm hover:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
                 >
                     {[...Array(20)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
@@ -94,11 +102,12 @@ const Setting = () => {
                 </select>
             </div>
 
-
+            {/* ボタン */}
             <button
                 onClick={handleSave}
-                className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
+                className="flex items-center justify-center gap-2 bg-blue-500 text-white text-lg font-medium px-6 py-3 rounded-xl w-full hover:bg-blue-600 shadow-md transition"
             >
+                <Play className="w-5 h-5" />
                 はじめる
             </button>
         </div>

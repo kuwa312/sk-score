@@ -39,7 +39,7 @@ const Setting = () => {
                 createdAt: new Date(),
             });
 
-            alert("保存しました！");
+            // alert("保存しました！");
             navigate("/scoreInput", { state: { gameId: gameRef.id } });
         } catch (error) {
             console.error("保存エラー:", error);
@@ -81,15 +81,19 @@ const Setting = () => {
 
             <div>
                 <label className="block mb-1">ラウンド数</label>
-                <input
-                    type="number"
-                    min="1"
-                    max="100"
+                <select
                     value={roundCount}
                     onChange={(e) => setRoundCount(Number(e.target.value))}
                     className="border p-2 rounded w-full"
-                />
+                >
+                    {[...Array(20)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                            {i + 1} ラウンド
+                        </option>
+                    ))}
+                </select>
             </div>
+
 
             <button
                 onClick={handleSave}

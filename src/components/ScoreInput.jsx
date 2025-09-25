@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, doc, setDoc, getDoc } from "firebase/firestore";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Target, MinusCircle, PlusCircle } from "lucide-react"; // アイコン
 
 const ScoreInput = () => {
     const location = useLocation();
@@ -67,6 +66,14 @@ const ScoreInput = () => {
         }
     };
 
+    // 前のラウンドへ
+    const handlePrevRound = () => {
+        if (roundNumber > 1) {
+            setRoundNumber((prev) => prev - 1);
+            // Firestore から過去のラウンドスコアを取ってきたい場合はここで getDoc すればOK
+        }
+    };
+
     return (
         <div className="max-w-md mx-auto p-6 space-y-6 rounded-xl">
             {/* ラウンド見出し */}
@@ -83,16 +90,13 @@ const ScoreInput = () => {
                             key={index}
                             className="flex items-center justify-between bg-white shadow-sm rounded-lg p-4 hover:shadow-md transition"
                         >
-                            {/* プレイヤー名 */}
                             <div className="text-xl flex-1 text-center font-medium text-gray-800">
                                 {player}
                             </div>
-
-                            {/* スコア操作 */}
                             <div className="flex items-center gap-3 flex-1 justify-center">
                                 <button
                                     onClick={() => handleScoreChange(player, -10)}
-                                    className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                                    className="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                                 >
                                     -10
                                 </button>
@@ -101,7 +105,7 @@ const ScoreInput = () => {
                                 </span>
                                 <button
                                     onClick={() => handleScoreChange(player, 10)}
-                                    className="flex items-center gap-1 px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                                    className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                                 >
                                     +10
                                 </button>
@@ -111,13 +115,25 @@ const ScoreInput = () => {
                 </div>
             )}
 
-            {/* 次へ/結果へ */}
-            <button
-                onClick={handleSave}
-                className="flex items-center justify-center gap-2 bg-blue-500 text-white text-lg font-medium px-6 py-3 rounded-xl w-full hover:bg-blue-600 shadow-md transition"
-            >
-                {roundNumber >= totalRounds ? "結果へ" : "次のラウンドへ"}
-            </button>
+            {/* 前へ / 次へ */}
+            <div className="flex gap-4">
+                <button
+                    onClick={handlePrevRound}
+                    disabled={roundNumber <= 1}
+                    className={`flex-1 px-6 py-3 rounded-xl shadow-md transition font-medium ${roundNumber <= 1
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-500 text-white hover:bg-gray-600"
+                        }`}
+                >
+                    前のラウンドへ
+                </button>
+                <button
+                    onClick={handleSave}
+                    className="flex-1 bg-blue-500 text-white text-lg font-medium px-6 py-3 rounded-xl hover:bg-blue-600 shadow-md transition"
+                >
+                    {roundNumber >= totalRounds ? "結果へ" : "次のラウンドへ"}
+                </button>
+            </div>
         </div>
     );
 };

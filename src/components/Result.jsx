@@ -101,7 +101,7 @@ const Result = () => {
                     </span>
 
                     {/* 名前 */}
-                    <span className="flex-1 font-medium text-gray-800">
+                    <span className="flex-1 font-bold text-gray-800">
                       {player}
                     </span>
 

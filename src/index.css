@@ -9,8 +9,9 @@ html, body {
   font-family: 'Poppins', sans-serif;
   font-weight: 600;
   position: relative;
-    background-color: rgb(255, 248, 231);
-    z-index: -2;
+    /* background-color: rgb(90, 74, 37); */
+  z-index: -2;
+  @apply  bg-gradient-to-br from-blue-50 to-blue-100 ;
 }
 
 body::before {

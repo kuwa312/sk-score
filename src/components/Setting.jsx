@@ -1,41 +1,46 @@
 import React, { useState } from "react";
 import { db } from "../firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, doc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 const Setting = () => {
+    const navigate = useNavigate();
     const [playerCount, setPlayerCount] = useState(1);
     const [playerNames, setPlayerNames] = useState([""]);
     const [roundCount, setRoundCount] = useState(1);
 
-    // プレイヤー人数を変更したとき
     const handlePlayerCountChange = (e) => {
         const count = Number(e.target.value);
         setPlayerCount(count);
-
-        // 入力欄を人数分に調整
         const newNames = [...playerNames];
         while (newNames.length < count) newNames.push("");
         while (newNames.length > count) newNames.pop();
         setPlayerNames(newNames);
     };
 
-    // 名前の入力
     const handleNameChange = (index, value) => {
         const newNames = [...playerNames];
         newNames[index] = value;
         setPlayerNames(newNames);
     };
 
-    // Firestore に保存
     const handleSave = async () => {
         try {
-            await addDoc(collection(db, "gameSettings"), {
-                playerCount,
-                playerNames,
-                roundCount,   // ★ ラウンド数も保存
+            // games コレクション内に新しいドキュメントを自動生成
+            const gameRef = doc(collection(db, "games"));
+
+            // ゲーム設定をドキュメントとして保存
+            await setDoc(gameRef, {
+                gameSettings: {
+                    playerCount,
+                    playerNames,
+                    roundCount,
+                },
                 createdAt: new Date(),
             });
+
             alert("保存しました！");
+            navigate("/scoreInput", { state: { gameId: gameRef.id } });
         } catch (error) {
             console.error("保存エラー:", error);
             alert("保存に失敗しました。");
@@ -44,9 +49,8 @@ const Setting = () => {
 
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">ゲームをはじめる</h2>
+            <h2 className="text-xl font-bold">ゲームの設定</h2>
 
-            {/* プレイヤー人数選択 */}
             <div>
                 <label className="block mb-1">人数を選択 (1〜10)</label>
                 <select
@@ -62,7 +66,6 @@ const Setting = () => {
                 </select>
             </div>
 
-            {/* 名前入力欄 */}
             <div className="space-y-2">
                 {playerNames.map((name, index) => (
                     <input
@@ -76,25 +79,23 @@ const Setting = () => {
                 ))}
             </div>
 
-            {/* ラウンド数入力 */}
             <div>
                 <label className="block mb-1">ラウンド数</label>
                 <input
                     type="number"
                     min="1"
-                    max="20"
+                    max="100"
                     value={roundCount}
                     onChange={(e) => setRoundCount(Number(e.target.value))}
                     className="border p-2 rounded w-full"
                 />
             </div>
 
-            {/* 保存ボタン */}
             <button
                 onClick={handleSave}
                 className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
             >
-                保存
+                はじめる
             </button>
         </div>
     );

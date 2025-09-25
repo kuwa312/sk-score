@@ -1,40 +1,45 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, doc, setDoc, getDoc } from "firebase/firestore";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const ScoreInput = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+    const { gameId } = location.state; // Setting から渡された gameId
     const [players, setPlayers] = useState([]);
     const [scores, setScores] = useState({});
+    const [roundNumber, setRoundNumber] = useState(1);
+    const [totalRounds, setTotalRounds] = useState(1); // 総ラウンド数
 
-    // Firestore からプレイヤー一覧を取得
+    // Firestore からゲーム設定を取得
     useEffect(() => {
-        const fetchPlayers = async () => {
+        const fetchGameSettings = async () => {
+            if (!gameId) return;
+
             try {
-                const querySnapshot = await getDocs(collection(db, "players"));
-                const data = querySnapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
-                }));
+                const gameRef = doc(db, "games", gameId);
+                const gameSnap = await getDoc(gameRef);
 
-                // 最新の設定を使う
-                if (data.length > 0) {
-                    const latest = data[data.length - 1];
-                    setPlayers(latest.playerNames || []);
+                if (gameSnap.exists()) {
+                    const { gameSettings } = gameSnap.data();
+                    setPlayers(gameSettings.playerNames || []);
+                    setTotalRounds(gameSettings.roundCount || 1);
 
-                    // 初期スコアを 0 に設定
+                    // 初期スコアは 0
                     const initScores = {};
-                    (latest.playerNames || []).forEach((p) => {
+                    (gameSettings.playerNames || []).forEach((p) => {
                         initScores[p] = 0;
                     });
                     setScores(initScores);
                 }
             } catch (error) {
-                console.error("プレイヤー取得エラー:", error);
+                console.error("ゲーム取得エラー:", error);
             }
         };
 
-        fetchPlayers();
-    }, []);
+        fetchGameSettings();
+    }, [gameId]);
 
     // スコア増減
     const handleScoreChange = (player, delta) => {
@@ -47,11 +52,22 @@ const ScoreInput = () => {
     // Firestore に保存
     const handleSave = async () => {
         try {
-            await addDoc(collection(db, "scores"), {
+            const roundRef = doc(db, "games", gameId, "rounds", String(roundNumber));
+            await setDoc(roundRef, {
                 scores,
                 createdAt: new Date(),
             });
-            alert("スコアを保存しました！");
+
+            if (roundNumber >= totalRounds) {
+                // 最終ラウンドなら結果画面に遷移
+                navigate("/result", { state: { gameId } });
+            } else {
+                // 次のラウンドに進む
+                setRoundNumber((prev) => prev + 1);
+                const resetScores = {};
+                players.forEach((p) => (resetScores[p] = 0));
+                setScores(resetScores);
+            }
         } catch (error) {
             console.error("スコア保存エラー:", error);
             alert("保存に失敗しました。");
@@ -60,7 +76,9 @@ const ScoreInput = () => {
 
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">スコア入力</h2>
+            <h2 className="font-bold text-xl">
+                ラウンド <span className="text-3xl text-blue-600">{roundNumber}</span> スコア入力
+            </h2>
 
             {players.length === 0 ? (
                 <p className="text-gray-500">プレイヤーが設定されていません。</p>
@@ -80,10 +98,10 @@ const ScoreInput = () => {
                                     -10
                                 </button>
                                 <span className="w-12 text-center text-lg font-bold">
-                                    {scores[player]}
+                                    {scores[player] > 0 ? `+${scores[player]}` : scores[player]}
                                 </span>
                                 <button
-                                    onClick={() => handleScoreChange(player, +10)}
+                                    onClick={() => handleScoreChange(player, 10)}
                                     className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
                                 >
                                     +10
@@ -98,7 +116,7 @@ const ScoreInput = () => {
                 onClick={handleSave}
                 className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
             >
-                保存
+                {roundNumber >= totalRounds ? "結果へ" : "次のラウンドへ"}
             </button>
         </div>
     );

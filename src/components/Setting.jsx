@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { db } from "../firebase"; // firebase.js で初期化した Firestore をインポート
+import { db } from "../firebase";
 import { collection, addDoc } from "firebase/firestore";
 
 const Setting = () => {
     const [playerCount, setPlayerCount] = useState(1);
     const [playerNames, setPlayerNames] = useState([""]);
-    const [roundCount, setRoundCount] = useState(1); // ★ ラウンド数
+    const [roundCount, setRoundCount] = useState(1);
 
     // プレイヤー人数を変更したとき
     const handlePlayerCountChange = (e) => {
@@ -44,7 +44,7 @@ const Setting = () => {
 
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">ゲーム設定</h2>
+            <h2 className="text-xl font-bold">ゲームをはじめる</h2>
 
             {/* プレイヤー人数選択 */}
             <div>

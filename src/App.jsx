@@ -10,12 +10,11 @@ function App() {
 
   return (
     <Router>
-      <Navbar />
+      {/* <Navbar /> */}
       <Routes>
-        <Route path="/setting" element={<Setting />} />
+        <Route path="/" element={<Setting />} />
         <Route path="/scoreinput" element={<ScoreInput />} />
         <Route path="/result" element={<Result />} />
-
       </Routes>
 
     </Router>

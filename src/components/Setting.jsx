@@ -5,6 +5,7 @@ import { collection, addDoc } from "firebase/firestore";
 const Setting = () => {
     const [playerCount, setPlayerCount] = useState(1);
     const [playerNames, setPlayerNames] = useState([""]);
+    const [roundCount, setRoundCount] = useState(1); // ★ ラウンド数
 
     // プレイヤー人数を変更したとき
     const handlePlayerCountChange = (e) => {
@@ -28,9 +29,10 @@ const Setting = () => {
     // Firestore に保存
     const handleSave = async () => {
         try {
-            await addDoc(collection(db, "players"), {
+            await addDoc(collection(db, "gameSettings"), {
                 playerCount,
                 playerNames,
+                roundCount,   // ★ ラウンド数も保存
                 createdAt: new Date(),
             });
             alert("保存しました！");
@@ -42,7 +44,7 @@ const Setting = () => {
 
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">プレイヤー設定</h2>
+            <h2 className="text-xl font-bold">ゲーム設定</h2>
 
             {/* プレイヤー人数選択 */}
             <div>
@@ -72,6 +74,19 @@ const Setting = () => {
                         className="border p-2 rounded w-full"
                     />
                 ))}
+            </div>
+
+            {/* ラウンド数入力 */}
+            <div>
+                <label className="block mb-1">ラウンド数</label>
+                <input
+                    type="number"
+                    min="1"
+                    max="20"
+                    value={roundCount}
+                    onChange={(e) => setRoundCount(Number(e.target.value))}
+                    className="border p-2 rounded w-full"
+                />
             </div>
 
             {/* 保存ボタン */}

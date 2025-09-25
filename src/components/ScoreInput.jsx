@@ -16,10 +16,17 @@ const ScoreInput = () => {
                     ...doc.data(),
                 }));
 
-                // 最新のドキュメント1件を使用（設定は1つだけと想定）
+                // 最新の設定を使う
                 if (data.length > 0) {
                     const latest = data[data.length - 1];
                     setPlayers(latest.playerNames || []);
+
+                    // 初期スコアを 0 に設定
+                    const initScores = {};
+                    (latest.playerNames || []).forEach((p) => {
+                        initScores[p] = 0;
+                    });
+                    setScores(initScores);
                 }
             } catch (error) {
                 console.error("プレイヤー取得エラー:", error);
@@ -29,15 +36,15 @@ const ScoreInput = () => {
         fetchPlayers();
     }, []);
 
-    // スコア入力変更
-    const handleScoreChange = (player, value) => {
+    // スコア増減
+    const handleScoreChange = (player, delta) => {
         setScores((prev) => ({
             ...prev,
-            [player]: Number(value),
+            [player]: (prev[player] || 0) + delta,
         }));
     };
 
-    // Firestore にスコア保存
+    // Firestore に保存
     const handleSave = async () => {
         try {
             await addDoc(collection(db, "scores"), {
@@ -45,7 +52,6 @@ const ScoreInput = () => {
                 createdAt: new Date(),
             });
             alert("スコアを保存しました！");
-            setScores({});
         } catch (error) {
             console.error("スコア保存エラー:", error);
             alert("保存に失敗しました。");
@@ -59,17 +65,30 @@ const ScoreInput = () => {
             {players.length === 0 ? (
                 <p className="text-gray-500">プレイヤーが設定されていません。</p>
             ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {players.map((player, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                            <span className="w-24">{player}</span>
-                            <input
-                                type="number"
-                                value={scores[player] || ""}
-                                onChange={(e) => handleScoreChange(player, e.target.value)}
-                                className="border p-2 rounded w-full"
-                                placeholder="スコア"
-                            />
+                        <div
+                            key={index}
+                            className="flex items-center justify-between bg-white shadow rounded-lg p-3"
+                        >
+                            <span className="font-medium">{player}</span>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => handleScoreChange(player, -10)}
+                                    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                                >
+                                    -10
+                                </button>
+                                <span className="w-12 text-center text-lg font-bold">
+                                    {scores[player]}
+                                </span>
+                                <button
+                                    onClick={() => handleScoreChange(player, +10)}
+                                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                                >
+                                    +10
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -77,7 +96,7 @@ const ScoreInput = () => {
 
             <button
                 onClick={handleSave}
-                className="bg-green-500 text-white px-4 py-2 rounded w-full hover:bg-green-600"
+                className="bg-blue-500 text-white px-4 py-2 rounded w-full hover:bg-blue-600"
             >
                 保存
             </button>

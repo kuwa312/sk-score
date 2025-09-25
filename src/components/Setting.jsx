@@ -49,14 +49,14 @@ const Setting = () => {
 
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="text-xl font-bold">ゲームの設定</h2>
+            <h2 className="text-2xl font-bold text-center">人数とラウンド数を決めてね</h2>
 
             <div>
                 <label className="block mb-1">人数を選択 (1〜10)</label>
                 <select
                     value={playerCount}
                     onChange={handlePlayerCountChange}
-                    className="border p-2 rounded w-full"
+                    className="border p-2 rounded w-full bg-white"
                 >
                     {[...Array(10)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
@@ -84,7 +84,7 @@ const Setting = () => {
                 <select
                     value={roundCount}
                     onChange={(e) => setRoundCount(Number(e.target.value))}
-                    className="border p-2 rounded w-full"
+                    className="border p-2 rounded w-full bg-white"
                 >
                     {[...Array(20)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>

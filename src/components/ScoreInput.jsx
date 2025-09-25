@@ -76,8 +76,8 @@ const ScoreInput = () => {
 
     return (
         <div className="max-w-md mx-auto p-4 space-y-4">
-            <h2 className="font-bold text-xl">
-                ラウンド <span className="text-3xl text-blue-600">{roundNumber}</span> スコア入力
+            <h2 className="font-bold text-xl text-center">
+                ラウンド <span className="text-3xl text-blue-600">{roundNumber}</span>
             </h2>
 
             {players.length === 0 ? (
@@ -89,8 +89,8 @@ const ScoreInput = () => {
                             key={index}
                             className="flex items-center justify-between bg-white shadow rounded-lg p-3"
                         >
-                            <span className="font-medium">{player}</span>
-                            <div className="flex items-center gap-2">
+                            <div className="bg-blue-100 flex-1 text-center">{player}</div>
+                            <div className="flex items-center gap-2 flex-1">
                                 <button
                                     onClick={() => handleScoreChange(player, -10)}
                                     className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"

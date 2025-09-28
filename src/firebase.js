@@ -5,14 +5,15 @@ import { getFirestore } from "firebase/firestore";
 import { GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBm0Zsi4mmfe6zYi2ZdfWW4aFWebqWhvvU",
-  authDomain: "sk-score.firebaseapp.com",
-  projectId: "sk-score",
-  storageBucket: "sk-score.firebasestorage.app",
-  messagingSenderId: "621434679463",
-  appId: "1:621434679463:web:706b28a1b57ed4e182eb82",
-  measurementId: "G-DZM9MQ4GVN",
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID,
+  measurementId: import.meta.env.VITE_MEASUREMENT_ID,
 };
+
 
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);

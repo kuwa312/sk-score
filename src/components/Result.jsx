@@ -49,12 +49,14 @@ const Result = () => {
         );
         setTotals(sortedTotals);
 
-        // グラフ用データ作成
+        const cumulativeScores = {};
         const chartArray = data.map((round) => {
-          return {
-            round: round.roundNumber,
-            ...round.scores,
-          };
+          const entry = { round: round.roundNumber };
+          Object.entries(round.scores || {}).forEach(([player, score]) => {
+            cumulativeScores[player] = (cumulativeScores[player] || 0) + score;
+            entry[player] = cumulativeScores[player];
+          });
+          return entry;
         });
         setChartData(chartArray);
       } catch (error) {
@@ -140,7 +142,7 @@ const Result = () => {
               {Object.keys(totals).map((player, idx) => (
                 <Line
                   key={player}
-                  type="liner"
+                  type="linear"
                   dataKey={player}
                   stroke={`hsl(${(idx * 60) % 360}, 70%, 50%)`}
                   strokeWidth={2}
